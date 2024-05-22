@@ -3,9 +3,10 @@ from button import Button
 from colors import *
 import abc
 import sys
+from objects import *
 
 
-class Screen:
+class Screen(abc.ABC):
     def __init__(self, screen_width, screen_height, font):
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -56,6 +57,21 @@ class MenuScreen(Screen):
 class GameScreen(Screen):
     def __init__(self, screen_width, screen_height, font):
         super().__init__(screen_width, screen_height, font)
+        self.line_width = 1
+        self.line_color = WHITE
+        self.num_lines = 6
+        self.line_spacing = (screen_width - (self.line_width * self.num_lines)) / (
+            self.num_lines - 1
+        )
+
+        self.player = Player(
+            self.screen,
+            10,
+            self.screen_height - 150,
+            100,
+            100,
+        )
+
         self.button = Button(
             "||",
             screen_width - 80,
@@ -66,26 +82,31 @@ class GameScreen(Screen):
             ACTIVE,
             font,
         )
-        self.radius = 0
 
     def draw(self):
         self.screen.fill(BLACK)
-        pygame.draw.circle(
-            self.screen,
-            WHITE,
-            (self.screen_width // 2, self.screen_height // 2),
-            self.radius,
-        )
+
+        # Draw vertical lines
+        for i in range(self.num_lines):
+            x_pos = self.line_width * i + self.line_spacing * i
+            pygame.draw.line(
+                self.screen, self.line_color, (x_pos, 0), (x_pos, self.screen_height)
+            )
+
+        self.player.draw()
+
         self.button.draw(self.screen, self.button.is_clicked(pygame.mouse.get_pos()))
-        self.radius += 1
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.KEYDOWN:
+                self.player.handle_movement(event, self.line_width, self.line_spacing)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.button.is_clicked(pygame.mouse.get_pos()):
                     return "pause"
+
         return "game"
 
 

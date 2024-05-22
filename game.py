@@ -5,14 +5,16 @@ from screens import *
 pygame.init()
 
 font = pygame.font.Font(None, 32)
+W = 600
+H = 800
 
 pygame.display.set_caption("Game")
 CLOCK = pygame.time.Clock()
 
 screens = {
-    "game": GameScreen(800, 600, font),
-    "menu": MenuScreen(800, 600, font),
-    "pause": PauseMenuScreen(800, 600, font),
+    "game": GameScreen(W, H, font),
+    "menu": MenuScreen(W, H, font),
+    "pause": PauseMenuScreen(W, H, font),
 }
 
 current_screen = screens["menu"]
