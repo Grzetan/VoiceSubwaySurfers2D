@@ -5,6 +5,7 @@ import abc
 import sys
 from objects import *
 from random import randrange
+from stt import SpeechToText
 
 
 class Screen(abc.ABC):
@@ -79,6 +80,8 @@ class GameScreen(Screen):
 
         self.generate_obstacle = 20
         self.reset()
+        self.stt = SpeechToText()
+        self.stt.start()
 
     def reset(self):
         self.obstacles = []
@@ -127,6 +130,8 @@ class GameScreen(Screen):
         return ret_val
 
     def handle_events(self):
+        word = self.stt.get()
+        print(word)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.exit()
