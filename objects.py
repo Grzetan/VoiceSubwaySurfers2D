@@ -1,6 +1,7 @@
 import pygame
 import abc
 from colors import *
+from random import randrange
 
 
 class Object(abc.ABC):
@@ -32,7 +33,7 @@ class Player(Object):
         self.color = YELLOW
         self.jump_color = WHITE
         self.jump = 0
-        self.JUMP_POWER = 20
+        self.JUMP_POWER = 50
         self.JUMP_DELAY = 10
 
     def draw(self):
@@ -54,3 +55,30 @@ class Player(Object):
                 self.x += line_spacing + line_width
             elif event.key == pygame.K_UP and self.jump <= -self.JUMP_DELAY:
                 self.jump = self.JUMP_POWER
+
+    def is_jumping(self):
+        return self.jump > 0
+
+
+class Obstacle(Object):
+    def __init__(self, screen, lines, line_spacing, line_width):
+        line = randrange(lines)
+        height = randrange(20, 200)
+        super().__init__(
+            screen, 10 + line * (line_spacing + line_width), -200, 100, height
+        )
+        self.color = RED
+        self.speed = 6
+
+    def draw(self):
+        self.move(0, self.speed)
+        pygame.draw.rect(
+            self.screen,
+            self.color,
+            self.get_rect(),
+        )
+
+        return self.y > self.screen.get_height() + self.height
+
+    def handle_movement(self):
+        pass

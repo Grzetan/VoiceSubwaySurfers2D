@@ -15,13 +15,14 @@ screens = {
     "game": GameScreen(W, H, font),
     "menu": MenuScreen(W, H, font),
     "pause": PauseMenuScreen(W, H, font),
+    "game_over": GameOverScreen(W, H, font),
 }
 
 current_screen = screens["menu"]
 running = True
 while running:
     CLOCK.tick(30)
-    current_screen.draw()
+    current_screen = screens[current_screen.draw()]
     current_screen = screens[current_screen.handle_events()]
 
     pygame.display.flip()
