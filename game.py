@@ -1,7 +1,6 @@
 import pygame
 from screens import *
 
-
 pygame.init()
 
 font = pygame.font.Font(None, 32)

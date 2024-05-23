@@ -1,6 +1,5 @@
 import speech_recognition as sr
-import asyncio
-import time
+from threading import Lock
 
 
 class SpeechToText:
@@ -9,15 +8,18 @@ class SpeechToText:
         self.r.energy_threshold = 50
         self.r.pause_threshold = 0.5
         self.results = []
+        self.lock: Lock = Lock()
 
-    async def process(self):
+    def process(self):
         with sr.Microphone() as source:
             while True:
                 audio = self.r.listen(source, phrase_time_limit=3, timeout=10)
 
                 try:
                     text = self.r.recognize_google(audio)
+                    self.lock.acquire()
                     self.results.append(text)
+                    self.lock.release()
                 except sr.UnknownValueError:
                     print("Sorry could not recognize what you said!")
                 except sr.RequestError as e:
@@ -27,16 +29,10 @@ class SpeechToText:
                         )
                     )
 
-    def start(self):
-        asyncio.get_event_loop().run_until_complete(self.process())
-
     def get(self):
-        if len(self.results) == 0:
-            return 0
-
-        return self.results.pop(0)
-
-
-stt = SpeechToText()
-stt.start()
-time.sleep(10)
+        ret = None
+        self.lock.acquire()
+        if len(self.results) != 0:
+            ret = self.results.pop(0)
+        self.lock.release()
+        return ret

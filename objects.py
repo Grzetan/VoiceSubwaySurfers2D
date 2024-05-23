@@ -28,13 +28,15 @@ class Object(abc.ABC):
 
 
 class Player(Object):
-    def __init__(self, screen, x, y, width=0, height=0):
+    def __init__(self, screen, x, y, width, height, line_width, line_spacing):
         super().__init__(screen, x, y, width, height)
         self.color = YELLOW
         self.jump_color = WHITE
         self.jump = 0
         self.JUMP_POWER = 50
         self.JUMP_DELAY = 10
+        self.line_width = line_width
+        self.line_spacing = line_spacing
 
     def draw(self):
         self.jump = -self.JUMP_DELAY if self.jump <= -self.JUMP_DELAY else self.jump - 1
@@ -44,17 +46,30 @@ class Player(Object):
             self.get_rect(),
         )
 
-    def handle_movement(self, event, line_width, line_spacing):
+    def move_left(self):
+        self.x -= self.line_spacing + self.line_width
+
+    def move_right(self):
+        self.x += self.line_spacing + self.line_width
+
+    def jump_(self):
+        self.jump = self.JUMP_POWER
+
+    def handle_movement(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT and self.x > line_width + line_spacing:
-                self.x -= line_spacing + line_width
+            if (
+                event.key == pygame.K_LEFT
+                and self.x > self.line_width + self.line_spacing
+            ):
+                self.move_left()
             elif (
                 event.key == pygame.K_RIGHT
-                and self.x < self.screen.get_width() - line_width - line_spacing
+                and self.x
+                < self.screen.get_width() - self.line_width - self.line_spacing
             ):
-                self.x += line_spacing + line_width
+                self.move_right()
             elif event.key == pygame.K_UP and self.jump <= -self.JUMP_DELAY:
-                self.jump = self.JUMP_POWER
+                self.jump_()
 
     def is_jumping(self):
         return self.jump > 0

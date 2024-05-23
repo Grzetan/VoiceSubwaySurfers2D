@@ -6,6 +6,8 @@ import sys
 from objects import *
 from random import randrange
 from stt import SpeechToText
+import threading
+import re
 
 
 class Screen(abc.ABC):
@@ -80,8 +82,11 @@ class GameScreen(Screen):
 
         self.generate_obstacle = 20
         self.reset()
+
         self.stt = SpeechToText()
-        self.stt.start()
+        t1 = threading.Thread(target=self.stt.process)
+        t1.setDaemon(True)
+        t1.start()
 
     def reset(self):
         self.obstacles = []
@@ -91,6 +96,8 @@ class GameScreen(Screen):
             self.screen_height - 150,
             100,
             50,
+            self.line_width,
+            self.line_spacing,
         )
 
     def draw(self):
@@ -129,9 +136,27 @@ class GameScreen(Screen):
 
         return ret_val
 
+    def direction(self, string):
+        if string is None:
+            return None
+
+        pattern = r"(left|right|jump)"
+        match = re.search(pattern, string, re.IGNORECASE)
+        if match:
+            return match.group().lower()
+        else:
+            return None
+
     def handle_events(self):
-        word = self.stt.get()
-        print(word)
+        word = self.direction(self.stt.get())
+        if word is not None:
+            if word == "left":
+                self.player.move_left()
+            elif word == "right":
+                self.player.move_right()
+            elif word == "jump":
+                self.player.jump_()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.exit()
