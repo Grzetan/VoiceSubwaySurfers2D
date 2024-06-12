@@ -37,14 +37,11 @@ class Player(Object):
         self.JUMP_DELAY = 10
         self.line_width = line_width
         self.line_spacing = line_spacing
+        self.background = pygame.image.load("assets/player.png")
 
     def draw(self):
         self.jump = -self.JUMP_DELAY if self.jump <= -self.JUMP_DELAY else self.jump - 1
-        pygame.draw.rect(
-            self.screen,
-            self.jump_color if self.jump > 0 else self.color,
-            self.get_rect(),
-        )
+        self.screen.blit(self.background, self.get_rect()[:2])
 
     def move_left(self):
         self.x -= self.line_spacing + self.line_width
@@ -84,14 +81,11 @@ class Obstacle(Object):
         )
         self.color = RED
         self.speed = 6
+        self.background = pygame.image.load("assets/obstacle.png")
 
     def draw(self):
         self.move(0, self.speed)
-        pygame.draw.rect(
-            self.screen,
-            self.color,
-            self.get_rect(),
-        )
+        self.screen.blit(pygame.transform.scale(self.background, (self.width, self.height)), self.get_rect()[:2])
 
         return self.y > self.screen.get_height() + self.height
 

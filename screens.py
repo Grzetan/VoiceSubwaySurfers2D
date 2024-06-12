@@ -37,9 +37,11 @@ class MenuScreen(Screen):
             Button("Play", screen_width / 2 - 100, 100, 200, 80, GREY, ACTIVE, font),
             Button("Quit", screen_width / 2 - 100, 200, 200, 80, GREY, ACTIVE, font),
         ]
+        self.bg = pygame.image.load("assets/background.jpg")
 
     def draw(self):
         self.screen.fill(BLACK)
+        self.screen.blit(self.bg, (0,0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "menu"
@@ -87,6 +89,7 @@ class GameScreen(Screen):
         t1 = threading.Thread(target=self.stt.process)
         t1.setDaemon(True)
         t1.start()
+        self.bg = pygame.image.load("assets/game-background.jpg")
 
     def reset(self):
         self.obstacles = []
@@ -112,13 +115,7 @@ class GameScreen(Screen):
             self.generate_obstacle = randrange(50, 100)
 
         self.screen.fill(BLACK)
-
-        # Draw vertical lines
-        for i in range(self.num_lines):
-            x_pos = self.line_width * i + self.line_spacing * i
-            pygame.draw.line(
-                self.screen, self.line_color, (x_pos, 0), (x_pos, self.screen_height)
-            )
+        self.screen.blit(self.bg, (0,0))
 
         for o in self.obstacles:
             if not self.player.is_jumping() and o.check_collision(self.player):
@@ -161,7 +158,7 @@ class GameScreen(Screen):
             if event.type == pygame.QUIT:
                 self.exit()
             elif event.type == pygame.KEYDOWN:
-                self.player.handle_movement(event, self.line_width, self.line_spacing)
+                self.player.handle_movement(event)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if self.button.is_clicked(pygame.mouse.get_pos()):
                     return "pause"
@@ -178,9 +175,11 @@ class PauseMenuScreen(Screen):
                 "Back to Menu", screen_width / 2 - 100, 200, 200, 80, GREY, ACTIVE, font
             ),
         ]
+        self.bg = pygame.image.load("assets/background.jpg")
 
     def draw(self):
         self.screen.fill(BLACK)
+        self.screen.blit(self.bg, (0,0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "pause"
@@ -209,9 +208,11 @@ class GameOverScreen(Screen):
                 "Back to Menu", screen_width / 2 - 100, 200, 200, 80, GREY, ACTIVE, font
             ),
         ]
+        self.bg = pygame.image.load("assets/gameover.jpg")
 
     def draw(self):
         self.screen.fill(BLACK)
+        self.screen.blit(self.bg, (0,0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "game_over"
