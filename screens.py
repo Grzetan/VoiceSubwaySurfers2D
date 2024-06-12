@@ -35,7 +35,8 @@ class MenuScreen(Screen):
         super().__init__(screen_width, screen_height, font)
         self.buttons = [
             Button("Play", screen_width / 2 - 100, 100, 200, 80, GREY, ACTIVE, font),
-            Button("Quit", screen_width / 2 - 100, 200, 200, 80, GREY, ACTIVE, font),
+            Button("Quit", screen_width / 2 - 100, 300, 200, 80, GREY, ACTIVE, font),
+            Button("History", screen_width / 2 - 100, 200, 200, 80, GREY, ACTIVE, font),
         ]
         self.bg = pygame.image.load("assets/background.jpg")
 
@@ -56,6 +57,8 @@ class MenuScreen(Screen):
                     if button.is_clicked(pos):
                         if button.text == "Play":
                             return "game"
+                        elif button.text == "History":
+                            return "history"
                         elif button.text == "Quit":
                             self.exit()
         return "menu"
@@ -230,3 +233,30 @@ class GameOverScreen(Screen):
                         elif button.text == "Back to Menu":
                             return "menu"
         return "game_over"
+
+class HistoryScreen(Screen):
+    def __init__(self, screen_width, screen_height, font):
+        super().__init__(screen_width, screen_height, font)
+        self.buttons = [
+            Button(
+                "Back to Menu", screen_width / 2 - 100, 100, 200, 80, GREY, ACTIVE, font
+            ),
+        ]
+
+    def draw(self):
+        self.screen.fill(BLACK)
+        for button in self.buttons:
+            button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
+        return "history"
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for button in self.buttons:
+                    if button.is_clicked(pos):
+                        if button.text == "Back to Menu":
+                            return "menu"
+        return "history"

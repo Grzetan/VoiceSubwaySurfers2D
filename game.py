@@ -15,6 +15,7 @@ screens = {
     "menu": MenuScreen(W, H, font),
     "pause": PauseMenuScreen(W, H, font),
     "game_over": GameOverScreen(W, H, font),
+    "history": HistoryScreen(W, H, font)
 }
 
 current_screen = screens["menu"]
