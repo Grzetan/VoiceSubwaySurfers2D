@@ -8,6 +8,18 @@ from random import randrange
 from stt import SpeechToText
 import threading
 import re
+import datetime
+
+scores = []
+
+
+def load_scores():
+    global scores
+    try:
+        with open("scores.txt", "r") as f:
+            scores = f.readlines()
+    except:
+        pass
 
 
 class Screen(abc.ABC):
@@ -42,7 +54,7 @@ class MenuScreen(Screen):
 
     def draw(self):
         self.screen.fill(BLACK)
-        self.screen.blit(self.bg, (0,0))
+        self.screen.blit(self.bg, (0, 0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "menu"
@@ -58,6 +70,7 @@ class MenuScreen(Screen):
                         if button.text == "Play":
                             return "game"
                         elif button.text == "History":
+                            load_scores()
                             return "history"
                         elif button.text == "Quit":
                             self.exit()
@@ -93,6 +106,7 @@ class GameScreen(Screen):
         t1.setDaemon(True)
         t1.start()
         self.bg = pygame.image.load("assets/game-background.jpg")
+        self.score = 0
 
     def reset(self):
         self.obstacles = []
@@ -105,6 +119,13 @@ class GameScreen(Screen):
             self.line_width,
             self.line_spacing,
         )
+        self.score = 0
+
+    def safe_score(self):
+        with open("scores.txt", "a+") as f:
+            f.write(
+                f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {self.score}\n"
+            )
 
     def draw(self):
         ret_val = "game"
@@ -118,16 +139,18 @@ class GameScreen(Screen):
             self.generate_obstacle = randrange(50, 100)
 
         self.screen.fill(BLACK)
-        self.screen.blit(self.bg, (0,0))
+        self.screen.blit(self.bg, (0, 0))
 
         for o in self.obstacles:
             if not self.player.is_jumping() and o.check_collision(self.player):
                 ret_val = "game_over"
+                self.safe_score()
                 self.reset()
                 break
 
             remove = o.draw()
             if remove:
+                self.score += 1
                 self.obstacles.remove(o)
 
         self.player.draw()
@@ -182,7 +205,7 @@ class PauseMenuScreen(Screen):
 
     def draw(self):
         self.screen.fill(BLACK)
-        self.screen.blit(self.bg, (0,0))
+        self.screen.blit(self.bg, (0, 0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "pause"
@@ -215,7 +238,7 @@ class GameOverScreen(Screen):
 
     def draw(self):
         self.screen.fill(BLACK)
-        self.screen.blit(self.bg, (0,0))
+        self.screen.blit(self.bg, (0, 0))
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
         return "game_over"
@@ -234,6 +257,7 @@ class GameOverScreen(Screen):
                             return "menu"
         return "game_over"
 
+
 class HistoryScreen(Screen):
     def __init__(self, screen_width, screen_height, font):
         super().__init__(screen_width, screen_height, font)
@@ -247,6 +271,15 @@ class HistoryScreen(Screen):
         self.screen.fill(BLACK)
         for button in self.buttons:
             button.draw(self.screen, button.is_clicked(pygame.mouse.get_pos()))
+
+        if len(scores) == 0:
+            text = self.font.render("No scores yet", True, WHITE)
+            self.screen.blit(text, (100, 250, 500, 500))
+
+        for i, score in enumerate(scores):
+            text = self.font.render(score.strip(), True, WHITE)
+            self.screen.blit(text, (100, 250 + i * 30, 500, 500))
+
         return "history"
 
     def handle_events(self):
